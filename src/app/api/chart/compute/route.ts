@@ -3,16 +3,14 @@ import { NextResponse } from "next/server";
 import { getUser } from "@/lib/auth/get-user";
 import {
   birthFingerprint,
-  calculateNatalChart,
   chartFromStored,
   profileToBirthFingerprint,
   toBirthFingerprintInput,
   type BirthData,
-  type NatalChartResult,
   type StoredChartData,
 } from "@/lib/astrology";
+import { persistNatalChart } from "@/lib/astrology/persist-natal-chart";
 import { createClient } from "@/lib/db/server";
-import type { Json } from "@/lib/db/types";
 import { t } from "@/lib/i18n";
 
 interface ComputeChartBody {
@@ -128,7 +126,12 @@ export async function POST(request: Request) {
     }
 
     const profileFingerprint = profileToBirthFingerprint(profile);
-    if (existing && profileFingerprint === fingerprint && !stored?._fingerprint) {
+    if (
+      existing &&
+      stored &&
+      profileFingerprint === fingerprint &&
+      !stored._fingerprint
+    ) {
       const chart = chartFromStored(stored);
       return NextResponse.json({
         chart,
@@ -138,53 +141,17 @@ export async function POST(request: Request) {
     }
   }
 
-  let chart: NatalChartResult;
-  try {
-    chart = calculateNatalChart(birthData);
-  } catch {
+  const result = await persistNatalChart(supabase, user.id, birthData, {
+    placeName: body.placeName ?? profile.birth_place_name,
+  });
+
+  if (result.error) {
+    const status = result.error === "compute_failed" ? 400 : 500;
     return NextResponse.json(
       { error: strings.astrology.chartComputeFailed },
-      { status: 400 },
+      { status },
     );
   }
 
-  const chartPayload: StoredChartData = {
-    ...chart,
-    _fingerprint: fingerprint,
-  };
-
-  const profileUpdate = {
-    birth_date: birthData.date,
-    birth_time: birthData.time ? `${birthData.time}:00` : null,
-    birth_lat: birthData.lat,
-    birth_lng: birthData.lng,
-    birth_timezone: birthData.timezone,
-    birth_place_name: body.placeName ?? profile.birth_place_name,
-    sun_sign: chart.sunSign,
-    moon_sign: chart.moonSign,
-    rising_sign: chart.risingSign ?? null,
-  };
-
-  const [{ error: profileUpdateError }, { error: chartUpsertError }] =
-    await Promise.all([
-      supabase.from("profiles").update(profileUpdate).eq("id", user.id),
-      supabase.from("natal_charts").upsert(
-        {
-          user_id: user.id,
-          chart_data: chartPayload as unknown as Json,
-          has_birth_time: chart.hasBirthTime,
-          computed_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" },
-      ),
-    ]);
-
-  if (profileUpdateError || chartUpsertError) {
-    return NextResponse.json(
-      { error: strings.astrology.chartComputeFailed },
-      { status: 500 },
-    );
-  }
-
-  return NextResponse.json({ chart, cached: false });
+  return NextResponse.json({ chart: result.chart, cached: false });
 }

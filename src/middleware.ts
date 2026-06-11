@@ -3,11 +3,16 @@ import { type NextRequest, NextResponse } from "next/server";
 import { createMiddlewareClient } from "@/lib/db/middleware";
 
 const PUBLIC_ROUTES = ["/", "/login", "/auth/callback", "/design", "/api/auth"];
+const ONBOARDING_ROUTE = "/onboarding";
 
 function isPublicRoute(pathname: string) {
   return PUBLIC_ROUTES.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
+}
+
+function isApiRoute(pathname: string) {
+  return pathname.startsWith("/api/");
 }
 
 export async function middleware(request: NextRequest) {
@@ -25,12 +30,31 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (user && pathname === "/login") {
-    return NextResponse.redirect(new URL("/today", request.url));
-  }
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("onboarding_completed")
+      .eq("id", user.id)
+      .maybeSingle();
 
-  if (user && pathname === "/") {
-    return NextResponse.redirect(new URL("/today", request.url));
+    const onboardingCompleted = profile?.onboarding_completed ?? false;
+
+    if (pathname === "/login" || pathname === "/") {
+      const target = onboardingCompleted ? "/today" : ONBOARDING_ROUTE;
+      return NextResponse.redirect(new URL(target, request.url));
+    }
+
+    if (
+      !onboardingCompleted &&
+      pathname !== ONBOARDING_ROUTE &&
+      !isApiRoute(pathname)
+    ) {
+      return NextResponse.redirect(new URL(ONBOARDING_ROUTE, request.url));
+    }
+
+    if (onboardingCompleted && pathname === ONBOARDING_ROUTE) {
+      return NextResponse.redirect(new URL("/today", request.url));
+    }
   }
 
   return response;
