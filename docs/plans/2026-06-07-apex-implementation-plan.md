@@ -39,9 +39,9 @@
 
 ### Шаг 0.1 — Создать проект
 
-- [ ] `npx create-next-app@latest apex --typescript --tailwind --app --src-dir`
-- [ ] Настроить ESLint + Prettier
-- [ ] Структура папок:
+- [x] `npx create-next-app@latest apex --typescript --tailwind --app --src-dir`
+- [x] Настроить ESLint + Prettier
+- [x] Структура папок:
 
 ```
 src/
@@ -59,16 +59,16 @@ src/
 
 ### Шаг 0.2 — Дизайн-система (минимализм)
 
-- [ ] Tailwind: чёрный `#000`, белый `#fff`, серый `#888`, один accent
-- [ ] Шрифт: Geist или Inter
-- [ ] Базовые компоненты: `Button`, `Input`, `Card`, `TabBar`, `Layout`
-- [ ] Тёмная тема по умолчанию (Co-Star стиль)
+- [x] Tailwind: чёрный `#000`, белый `#fff`, серый `#888`, один accent
+- [x] Шрифт: Geist или Inter
+- [x] Базовые компоненты: `Button`, `Input`, `Card`, `TabBar`, `Layout`
+- [x] Тёмная тема по умолчанию (Co-Star стиль)
 
 **Готово когда:** storybook или `/design` страница показывает все базовые компоненты.
 
 ### Шаг 0.3 — Env и деплой-заготовка
 
-- [ ] `.env.example` с переменными:
+- [x] `.env.example` с переменными:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=
@@ -79,8 +79,8 @@ QWEN_API_KEY=
 GEOCODING_API_KEY=          # Nominatim или DaData
 ```
 
-- [ ] Vercel project (или аналог) подключён к repo
-- [ ] `git init` + первый коммит
+- [ ] Vercel project (или аналог) подключён к repo — **заготовка есть** (`vercel.json`), импорт в UI не подтверждён
+- [x] `git init` + первый коммит — repo: https://github.com/Baddog3/apex, commit `3f98e54`
 
 **Готово когда:** push в main деплоит пустой сайт на staging URL.
 
@@ -604,6 +604,6 @@ graph TD
 
 ## Следующий шаг
 
-Начать с **Фазы 0, Шаг 0.1** — инициализация Next.js проекта.
+**Фаза 1, Шаг 1.1** — Supabase project + миграция `001_initial.sql`.
 
-Скажи «начинаем» — и я создам проект.
+Handoff: [2026-06-07-phase-0-handoff.md](../handoff/2026-06-07-phase-0-handoff.md)

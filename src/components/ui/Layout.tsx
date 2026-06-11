@@ -2,16 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { APP_TABS } from "@/lib/navigation";
 import { t } from "@/lib/i18n";
 import { TabBar } from "./TabBar";
-
-const tabs = [
-  { href: "/today", key: "today" as const },
-  { href: "/chart", key: "chart" as const },
-  { href: "/compatibility", key: "compatibility" as const },
-  { href: "/chat", key: "chat" as const },
-  { href: "/profile", key: "profile" as const },
-];
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -32,7 +25,7 @@ export function Layout({ children, showNav = true }: LayoutProps) {
             </span>
           </div>
           <nav className="flex flex-col">
-            {tabs.map(({ href, key }) => {
+            {APP_TABS.map(({ href, key }) => {
               const active = pathname === href || pathname.startsWith(`${href}/`);
               return (
                 <Link
