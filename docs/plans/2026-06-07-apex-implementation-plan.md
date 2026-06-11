@@ -92,8 +92,8 @@ GEOCODING_API_KEY=          # Nominatim или DaData
 
 ### Шаг 1.1 — Supabase проект и схема
 
-- [ ] Создать Supabase project
-- [ ] Миграция `001_initial.sql`:
+- [x] Создать Supabase project — cloud: `qvgfgnecccsqudlkebwg`, миграции применены
+- [x] Миграция `001_initial.sql`:
 
 ```sql
 -- profiles (extends auth.users)
@@ -157,27 +157,27 @@ create table chat_messages (
 
 ### Шаг 1.2 — Auth: email magic link
 
-- [ ] Supabase Auth: email provider
-- [ ] Страницы `/login`, `/auth/callback`
-- [ ] Middleware: редирект неавторизованных на `/login`
-- [ ] Hook `useUser()` + server-side `getUser()`
+- [x] Supabase Auth: email provider — код готов; в Dashboard: Email on + redirect URLs
+- [x] Страницы `/login`, `/auth/callback`
+- [x] Middleware: редирект неавторизованных на `/login`
+- [x] Hook `useUser()` + server-side `getUser()`
 
 **Готово когда:** пользователь входит по email, видит пустой dashboard.
 
 ### Шаг 1.3 — Auth: Telegram Login Widget
 
-- [ ] Создать Telegram Bot через @BotFather
-- [ ] Виджет на странице `/login`
-- [ ] Верификация hash на сервере → создание/линковка Supabase user
-- [ ] Сохранить `telegram_id` в profiles (добавить колонку)
+- [ ] Создать Telegram Bot через @BotFather — **ручная настройка**; код и API готовы
+- [x] Виджет на странице `/login`
+- [x] Верификация hash на сервере → создание/линковка Supabase user
+- [x] Сохранить `telegram_id` в profiles — миграция `002_telegram_id.sql`
 
 **Готово когда:** вход через Telegram создаёт профиль и редиректит в приложение.
 
 ### Шаг 1.4 — Layout и навигация
 
-- [ ] `AppLayout` с нижним TabBar (мобильный) / sidebar (десктоп)
-- [ ] 5 вкладок: Сегодня, Карта, Совместимость, Чат, Профиль
-- [ ] Заглушки страниц для каждой вкладки
+- [x] `AppLayout` с нижним TabBar (мобильный) / sidebar (десктоп)
+- [x] 5 вкладок: Сегодня, Карта, Совместимость, Чат, Профиль
+- [x] Заглушки страниц для каждой вкладки
 
 **Готово когда:** авторизованный пользователь видит навигацию и может переключаться между пустыми экранами.
 
@@ -189,9 +189,9 @@ create table chat_messages (
 
 ### Шаг 2.1 — Выбор и интеграция ephemeris
 
-- [ ] Оценить: `sweph-wasm` / `astronomy-engine` / `circular-natal-horoscope-js`
-- [ ] Рекомендация для MVP: **`circular-natal-horoscope-js`** (JS-native, проще в Next.js) или обёртка Swiss Ephemeris
-- [ ] Модуль `src/lib/astrology/calculate.ts`:
+- [x] Оценить: `sweph-wasm` / `astronomy-engine` / `circular-natal-horoscope-js`
+- [x] Рекомендация для MVP: **`circular-natal-horoscope-js`** (JS-native, проще в Next.js) или обёртка Swiss Ephemeris
+- [x] Модуль `src/lib/astrology/calculate.ts`:
 
 ```typescript
 interface BirthData {
@@ -214,31 +214,31 @@ interface NatalChartResult {
 
 ### Шаг 2.2 — Геокодинг города
 
-- [ ] API route `POST /api/geocode` — город → lat/lng/timezone
-- [ ] DaData (для РФ городов) или Nominatim (бесплатно)
-- [ ] Autocomplete компонент `CityInput` с debounce
+- [x] API route `POST /api/geocode` — город → lat/lng/timezone
+- [x] DaData (для РФ городов) или Nominatim (бесплатно)
+- [x] Autocomplete компонент `CityInput` с debounce
 
 **Готово когда:** ввод «Москва» возвращает `55.7558, 37.6173, Europe/Moscow`.
 
 ### Шаг 2.3 — Расчёт транзитов
 
-- [ ] Модуль `src/lib/astrology/transits.ts`
-- [ ] Вход: натальная карта + текущая дата
-- [ ] Выход: массив активных аспектов (транзитная планета → натальная планета)
+- [x] Модуль `src/lib/astrology/transits.ts`
+- [x] Вход: натальная карта + текущая дата
+- [x] Выход: массив активных аспектов (транзитная планета → натальная планета)
 
 **Готово когда:** API `GET /api/transits?userId=` возвращает JSON с сегодняшними транзитами.
 
 ### Шаг 2.4 — Кэширование карты
 
-- [ ] API `POST /api/chart/compute` — считает и сохраняет в `natal_charts`
-- [ ] Пересчёт только при изменении birth data
-- [ ] Обновление `sun_sign`, `moon_sign`, `rising_sign` в profiles
+- [x] API `POST /api/chart/compute` — считает и сохраняет в `natal_charts`
+- [x] Пересчёт только при изменении birth data
+- [x] Обновление `sun_sign`, `moon_sign`, `rising_sign` в profiles
 
 **Готово когда:** после вызова API карта лежит в БД и повторный запрос отдаёт кэш.
 
 ### Шаг 2.5 — Текстовое представление карты для AI
 
-- [ ] Функция `chartToPrompt(chart, transits)` → компактная строка ~200 токенов:
+- [x] Функция `chartToPrompt(chart, transits)` → компактная строка ~200 токенов:
 
 ```
 Солнце: Скорпион, 12° | Луна: Рыбы, 28° | Асцендент: Дева
@@ -604,6 +604,6 @@ graph TD
 
 ## Следующий шаг
 
-**Фаза 1, Шаг 1.1** — Supabase project + миграция `001_initial.sql`.
+**Фаза 3, Шаг 3.1** — wizard онбординга (дата → город → время).
 
-Handoff: [2026-06-07-phase-0-handoff.md](../handoff/2026-06-07-phase-0-handoff.md)
+Handoff: [2026-06-11-phase-2-handoff.md](../handoff/2026-06-11-phase-2-handoff.md)
