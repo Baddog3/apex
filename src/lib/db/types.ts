@@ -9,6 +9,7 @@ export type Json =
   | Json[];
 
 export type ChatMessageRole = "user" | "assistant";
+export type HoroscopeSource = "ai" | "fallback";
 
 export interface Database {
   public: {
@@ -158,6 +159,47 @@ export interface Database {
           },
         ];
       };
+      daily_horoscopes: {
+        Row: {
+          id: string;
+          user_id: string;
+          horoscope_date: string;
+          text: string;
+          main_transit: Json | null;
+          chart_fingerprint: string;
+          source: HoroscopeSource;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          horoscope_date: string;
+          text: string;
+          main_transit?: Json | null;
+          chart_fingerprint: string;
+          source: HoroscopeSource;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          horoscope_date?: string;
+          text?: string;
+          main_transit?: Json | null;
+          chart_fingerprint?: string;
+          source?: HoroscopeSource;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "daily_horoscopes_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       chat_messages: {
         Row: {
           id: string;
@@ -203,3 +245,5 @@ export type NatalChart = Database["public"]["Tables"]["natal_charts"]["Row"];
 export type CompatibilityLink =
   Database["public"]["Tables"]["compatibility_links"]["Row"];
 export type ChatMessage = Database["public"]["Tables"]["chat_messages"]["Row"];
+export type DailyHoroscope =
+  Database["public"]["Tables"]["daily_horoscopes"]["Row"];
